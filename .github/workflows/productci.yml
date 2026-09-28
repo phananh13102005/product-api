@@ -29,7 +29,11 @@ jobs:
 
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+
+      - name: Run Jest tests
+        run: npm test
 
 
       - name: Build Docker containers
