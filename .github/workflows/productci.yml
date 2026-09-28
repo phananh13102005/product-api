@@ -31,10 +31,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Start MongoDB for Jest tests
+        run: docker compose up -d mongodb
+
+      - name: Wait for MongoDB
+        run: |
+          for i in {1..30}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' nammongodb 2>/dev/null || echo "starting")
+
+            echo "MongoDB: $STATUS"
+
+            if [ "$STATUS" = "healthy" ]; then
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          docker compose logs mongodb
+          exit 1
 
       - name: Run Jest tests
         run: npm test
 
-
-      - name: Build Docker containers
-        run: docker compose build
+      - name: Build and start containers
+        run: docker compose up -d --build
